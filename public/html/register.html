@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register • 24AM Radar</title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body class="auth-page">
+
+    <div class="auth-title">Register to 24AM Radar</div>
+
+    <div class="auth-wrap">
+        <form id="registerForm" class="card" style="width:320px;">
+                <div class="card-header">
+                    <span>Register</span>
+                </div>
+
+                <!-- Uses your existing input style -->
+                <input id="regEmail" type="email" placeholder="Email" required>
+                <input id="regUsername" type="text" placeholder="Username" required>
+                <input id="regPassword" type="password" placeholder="Password" required>
+
+                <button class="primary-btn" type="submit">Register</button>
+
+                <p id="registerMsg" style="margin-top:10px;"></p>
+                <div class="auth-link">
+                        <a href="login.html">Already have an account?</a>
+                </div>
+        </form>
+    </div>
+
+    <script src="/scripts/script.js"></script>
+</body>
+</html>

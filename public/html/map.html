@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>24AM Radar</title>
+<link rel="stylesheet" href="/styles/style.css">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<header class="navbar">
+        <!-- Mobile hamburger -->
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+        <i class='bx bx-menu'></i>
+    </button>
+
+    <div class="logo">24AMRadar</div>
+
+    <a class="settings" href="settings.html">
+        <i class='bx bx-cog'> Settings </i>
+    </a>
+</header>
+
+<div class="dashboard">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <!-- AIR TRAFFIC PANEL -->
+        <div class="card sidebar-card">
+            <div class="card-header">
+                <span>Air Traffic</span>
+                <span>Airports</span>
+            </div>
+            <div class="toggle-row">
+                <label class="switch">
+                    <input type="checkbox" id="aircraftToggle" checked>
+                    <span class="slider round"></span>
+                </label>
+                <label class="switch">
+                    <input type="checkbox" id="airportToggle" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="card sidebar-card">
+            <div class="card-header">
+                <span>Filters</span>
+                <i class='bx bx-slider-alt'></i>
+            </div>
+            
+            <div class="dropdown">
+                <select name="choices" id="choices" aria-placeholder="Type">
+                    <option value="0" selected>Aircraft Type</option>
+                    <option value="1">No Category</option>
+                    <option value="2">Light (&lt; 15500 lbs)</option>
+                    <option value="3">Small (15500 to 75000 lbs)</option>
+                    <option value="4">Large (75000 to 300000 lbs)</option>
+                    <option value="5">High Vortex Large (aircraft such as B-757)</option>
+                    <option value="6">Heavy (&gt; 300000 lbs)</option>
+                    <option value="7">High Performance (&gt; 5g acceleration and 400 kts)</option>
+                    <option value="8">Rotorcraft</option>
+                    <option value="9">Glider / sailplane</option>
+                    <option value="10">Lighter-than-air</option>
+                    <option value="11">Parachutist / Skydiver</option>
+                    <option value="12">Ultralight / hang-glider / paraglider</option>
+                    <option value="13">Reserved</option>
+                    <option value="14">Unmanned Aerial Vehicle</option>
+                </select>
+            </div>
+
+            <div class="dropdown">
+                <input type="text" name="Sqwak" id="sqwak" placeholder="Squawk Code">
+            </div>
+
+            <div class="dropdown">
+                <input type="text" name="Altitude" id="altitude" placeholder="Altitude (ft)">
+            </div>
+
+            <div class="dropdown">
+                <input type="text" name="Speed" id="speed" placeholder="Speed (knots)">
+            </div>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="card" id="searchCard">
+        <div class="card-header">
+            <span>Search</span>
+            <i class='bx bx-search'></i>
+        </div>
+
+        <input
+            id="sidebarSearch"
+            type="text"
+            placeholder="Search by Airport or Plane"
+            autocomplete="off"
+        />
+        </div>
+
+        <!-- RESULTS (appears under Search card) -->
+        <div id="searchResultsWrap" class="results-wrap hidden">
+        <!-- JS will insert cards here -->
+        </div>
+
+        <!-- WEATHER -->
+        <div class="card sidebar-card">
+            <div class="card-header">
+                <span>Weather</span>
+                <span>Day Night</span>
+            </div>
+            <div class="toggle-row">
+                <label class="switch">
+                    <input type="checkbox" id="weatherToggle" checked>
+                    <span class="slider round"></span>
+                </label>
+                <label class="switch">
+                    <input type="checkbox" id="dayNightToggle" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- MAP SECTION -->
+    <main class="map-container">
+        <div id="map"></div>
+    </main>
+
+</div>
+
+<!-- FOOTER STATUS BAR -->
+<footer class="status-bar">
+    <span id="lastUpd">Last Update: 10:52 PM</span>
+    <span class="connected" id="connectedStatus">API Status: Connected</span>
+</footer>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- Terminator Plugin -->
+<script src=" https://unpkg.com/@joergdietrich/leaflet.terminator/L.Terminator.js"></script>
+
+<!-- Your Script -->
+<script src="/scripts/script.js"></script>
+<script src="/scripts/map.js"></script>
+</body>
+</html>

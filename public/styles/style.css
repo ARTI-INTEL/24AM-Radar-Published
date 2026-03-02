@@ -1,0 +1,651 @@
+/* Color Variables */
+
+:root{
+    --bg-color: #0C1421;
+    --secondary-bg: #10223F;
+    --card-color: #162337;
+    --fg-color: #fff;
+    --card-color-inverted: #d0dfff;
+    --fg-inverted: #000;
+}
+
+/* RESET */
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', sans-serif;
+    color: #fff;
+    height: 100vh;
+    display: flex;
+}
+
+.dashboard {
+    flex: 1;
+    display: flex;
+    min-height: 0; /* VERY IMPORTANT for flex children */
+}
+
+.map-container {
+    flex: 1;
+    min-height: 0; /* prevents overflow bug */
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* NAVBAR */
+.navbar {
+    height: 60px;
+    background: var(--bg-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    font-weight: 600;
+    font-size: 30px;
+}
+
+.settings {
+    font-size: 20px;
+    opacity: 0.8;
+    background-color: transparent;
+    border: none;
+    color: var(--fg-color);
+    text-decoration: none;
+}
+
+.settings:hover {
+    opacity: 1;
+    cursor: pointer;
+}  
+
+.settings.clicked {
+    opacity: 0.9;
+}
+
+/* DASHBOARD LAYOUT */
+.dashboard {
+    flex: 1;
+    display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 280px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: linear-gradient(180deg, var(--bg-color), var(--secondary-bg));
+    
+}
+
+/* CARD STYLE */
+.card {
+    background: var(--card-color);
+    padding: 12px;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* TOGGLES */
+.toggle-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.toggle {
+    width: 50px;
+    height: 26px;
+    border-radius: 20px;
+    background: var(--secondary-bg);
+    position: relative;
+}
+
+.toggle.active {
+    background: #1ed760;
+}
+
+.toggle.active::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: var(--fg-color);
+    border-radius: 50%;
+    right: 3px;
+    top: 3px;
+}
+
+.dropdown select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    background: var(--secondary-bg);
+    color: var(--fg-color);
+    font-size: 13px;
+    margin: 5px;
+    margin-left: 0%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+/* STATISTICS */
+.stat-label {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.stat-number {
+    color: #00d4ff;
+    margin-top: 5px;
+}
+
+/* SEARCH */
+input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    background: var(--secondary-bg);
+    color: var(--fg-color);
+    font-size: 13px;
+    margin: 5px 0;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+
+/* STATUS BAR */
+.status-bar {
+    height: 40px;
+    background: var(--secondary-bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    font-size: 13px;
+}
+
+.connected {
+    color: #1ed760;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 220px;
+    }
+}
+
+/* Container for the toggle */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide the default checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider track */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+/* The circular thumb */
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px; bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+/* On-state: Change background and move thumb */
+input:checked + .slider { background-color: #1ed760; }
+input:checked + .slider:before { transform: translateX(26px); }
+
+.map-container {
+    flex: 1;
+    position: relative;
+}
+
+#map {
+  filter: invert(100%) hue-rotate(180deg) brightness(90%) contrast(90%);
+}
+
+.leaflet-layer,
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out,
+.leaflet-control-attribution {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+.leaflet-popup,
+.leaflet-popup *{
+  filter: none !important;
+}
+
+/* Search Sidebar */
+/* Make sidebar scroll when results grow */
+.sidebar {
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+/* Results wrapper */
+.results-wrap {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Flight Result Card */
+.flight-card {
+  background: var(--card-color);
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.flight-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.flight-sub {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-bottom: 12px;
+}
+
+.flight-meta {
+    display: grid;
+    gap: 8px;
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+.flight-meta span {
+    opacity: 0.85;
+}
+
+.sidebar-hidden {
+    display: none !important;
+}
+
+/* ===== AUTH PAGE LAYOUT (uses existing classes) ===== */
+
+.auth-page {
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-title {
+    padding: 28px 34px;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--fg-color);
+}
+
+.auth-wrap {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(180deg, var(--bg-color), var(--secondary-bg));
+}
+
+/* Button style using your color system */
+.primary-btn {
+    margin: 10px auto 0;
+    display: block;
+    padding: 10px 26px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--fg-color);
+    background: linear-gradient(180deg, #2f79ff 0%, #1f56d6 100%);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.45);
+}
+
+.primary-btn:hover { filter: brightness(1.05); }
+.primary-btn:active { transform: translateY(1px); }
+
+/* ===== Auth Links Row ===== */
+
+.auth-link {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;  /* pushes links to edges */
+  align-items: center;
+  font-size: 12px;
+}
+
+.auth-link a {
+  color: var(--fg-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+/* ===== Settings page additions (paste at bottom of your existing CSS) ===== */
+
+/* Big rounded panel like your screenshot */
+.settings-panel{
+  width: min(1280px, 92vw);
+  height: min(720px, 78vh);
+  border-radius: 60px;
+  padding: 56px 64px;
+  background: var(--card-color);
+}
+
+/* Top content row */
+.settings-row{
+  display: flex;
+  gap: 46px;
+  align-items: center;
+}
+
+/* Avatar circle */
+.settings-avatar{
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: #e9ddff;         /* light lilac like mock */
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+}
+
+.settings-avatar i{
+  font-size: 90px;
+  color: #5a3a9a;              /* darker lilac icon */
+}
+
+/* Text + controls */
+.settings-content{
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.settings-welcome{
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--fg-color);
+  opacity: 0.95;
+}
+
+/* Buttons row */
+.settings-actions{
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.settings-btn{
+  margin: 0;                   /* override center auto from auth usage */
+  min-width: 180px;
+}
+
+/* Dropdowns */
+.settings-selects{
+  display: grid;
+  gap: 16px;
+  width: 280px;                /* matches mock size */
+  margin-top: 14px;
+}
+
+/* Reuse your theme input look for selects */
+.settings-selects select{
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 20px;
+  border: none;
+  background: var(--secondary-bg);
+  color: var(--fg-color);
+  font-size: 13px;
+  outline: none;
+  appearance: none;
+}
+
+/* Add a dropdown arrow */
+.settings-selects select{
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.85) 50%),
+    linear-gradient(135deg, rgba(255,255,255,0.85) 50%, transparent 50%);
+  background-position:
+    calc(100% - 22px) 50%,
+    calc(100% - 16px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.settings-selects select:focus{
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 900px){
+  .settings-panel{
+    border-radius: 28px;
+    height: auto;
+    padding: 28px;
+  }
+  .settings-row{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .settings-selects{
+    width: 100%;
+    max-width: 340px;
+  }
+}
+
+/* =========================================================
+   REMOVE DEFAULT LEAFLET POPUP BLACK BACKGROUND
+   ========================================================= */
+
+/* Remove outer popup container */
+.airport-popup-theme,
+.aircraft-popup-theme,
+.leaflet-popup {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Remove default white/black wrapper */
+.leaflet-popup-content-wrapper {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.leaflet-popup-content {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Remove popup arrow tip */
+.leaflet-popup-tip-container,
+.leaflet-popup-tip {
+    display: none !important;
+}
+
+/* =========================================================
+   AIRPORT POPUP STYLE
+   ========================================================= */
+
+.airport-popup-card {
+    background: var(--card-color-inverted);
+    border-radius: 22px;
+    padding: 12px 16px;
+    box-shadow:
+        0 18px 45px rgba(255,255,255,0.4),
+        0 0 30px rgba(255,255,255,0.2);
+}
+
+.airport-popup-title {
+    color: var(--fg-inverted);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.airport-popup-subtitle {
+    color: rgba(0,0,0,0.75);
+    font-size: 11px;
+}
+
+/* =========================================================
+   AIRCRAFT POPUP STYLE
+   ========================================================= */
+
+.aircraft-popup-card {
+    background: var(--card-color-inverted);
+    border-radius: 22px;
+    padding: 12px 16px;
+}
+
+.aircraft-popup-title {
+    color: var(--fg-inverted);
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.aircraft-popup-subtitle {
+    color: rgba(0,0,0,0.85);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* =========================================================
+   PLANE ICON
+   ========================================================= */
+
+.plane-icon {
+    width: 30px;
+    height: 30px;
+    display: block;
+    transform-origin: 50% 50%;
+    filter: drop-shadow(0 6px 10px rgba(255,255,255,0.5));
+}
+
+/* ===== Mobile Sidebar Drawer ===== */
+
+/* Hamburger button (hidden on desktop) */
+.menu-btn{
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--fg-color);
+  font-size: 32px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* Overlay (hidden by default) */
+.sidebar-overlay{
+  display: none;
+}
+
+/* Mobile behavior */
+@media (max-width: 768px){
+
+  /* Show hamburger */
+  .menu-btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Make map take full width */
+  .dashboard{
+    position: relative;
+  }
+
+  /* Turn sidebar into off-canvas drawer */
+  .sidebar{
+    position: fixed;
+    top: 60px;                 /* matches .navbar height :contentReference[oaicite:4]{index=4} */
+    left: 0;
+    height: calc(100vh - 60px);
+    width: min(86vw, 320px);
+    z-index: 2000;
+
+    transform: translateX(-110%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+
+  /* Overlay covers map when drawer open */
+  .sidebar-overlay{
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 40px;              /* your status bar is 40px :contentReference[oaicite:5]{index=5} */
+    background: rgba(0,0,0,0.45);
+    z-index: 1500;
+    display: none;
+  }
+
+  /* Open state */
+  body.sidebar-open .sidebar{
+    transform: translateX(0);
+  }
+  body.sidebar-open .sidebar-overlay{
+    display: block;
+  }
+}

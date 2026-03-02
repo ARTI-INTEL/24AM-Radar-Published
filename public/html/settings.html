@@ -1,0 +1,47 @@
+<!-- settings.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings • 24AM Radar</title>
+  <link rel="stylesheet" href="/styles/style.css" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
+
+<body class="auth-page">
+
+  <!-- Page title (same pattern as Register/Login) -->
+    <header class="navbar">
+        <div class="logo">24AMRadar</div>
+        <a href="map.html" class="settings">Back to map</a>
+    </header>
+
+  <div class="auth-wrap">
+
+    <!-- Big rounded panel (reuses your .card base styling) -->
+    <section class="card settings-panel">
+
+      <div class="settings-row">
+        <!-- Avatar -->
+        <div class="settings-avatar">
+          <i class='bx bx-user'></i>
+        </div>
+
+        <!-- Content -->
+        <div class="settings-content">
+          <h2 id="welcomeText" class="section-title settings-welcome"></h2>
+
+          <div class="settings-actions">
+            <button type="button" class="primary-btn settings-btn" onclick="window.location.href='changePW.html'">Change Password</button>
+            <button type="button" class="primary-btn settings-btn" onclick="window.location.href='changeUN.html'">Change Username</button>
+            <button type="button" class="primary-btn settings-btn" onclick="LogOut()">Log-out</button>
+          </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/scripts/script.js"></script>
+</body>
+</html>

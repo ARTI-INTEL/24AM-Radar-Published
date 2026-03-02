@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login • 24AM Radar</title>
+  <link rel="stylesheet" href="/styles/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+</head>
+<body class="auth-page">
+
+  <div class="auth-title">Login to 24AM Radar</div>
+
+  <div class="auth-wrap">
+    <form id="loginForm" class="card" style="width:320px;">
+        <div class="card-header">
+            <span>Login</span>
+        </div>
+
+        <input id="loginEmail" type="email" placeholder="Email" required>
+        <input id="loginPassword" type="password" placeholder="Password" required>
+
+        <button class="primary-btn" type="submit">Login</button>
+
+        <p id="loginMsg" style="margin-top:10px;"></p>
+
+        <div class="auth-link">
+            <a href="register.html">Don't have an account?</a>
+            <a href="forgotPW.html">Forgot Password?</a>
+        </div>
+    </form>
+  </div>
+  
+  <!-- Your Script -->
+  <script src="/scripts/script.js"></script>
+</body>
+</html>
