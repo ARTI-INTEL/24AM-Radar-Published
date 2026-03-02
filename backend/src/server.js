@@ -43,7 +43,7 @@ app.get("/health", async (_req, res) => {
 
 app.use("/api/auth", authRouter);
 
-const port = Number(process.env.PORT || 5000);
+const port = Number(process.env.PORT || 8080);
 app.listen(port, () => console.log(`Running on ${port}`));
 
 app.use("/api/user", userRouter);
