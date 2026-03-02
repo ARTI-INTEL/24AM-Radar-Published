@@ -134,7 +134,7 @@ async function loadAirportsInView() {
   try {
     airportsLayer.clearLayers();
 
-    const API_BASE = "http://localhost:5000";
+    const API_BASE = "";
     const url =
       `${API_BASE}/api/airports?minLat=${minLat}&maxLat=${maxLat}&minLon=${minLon}&maxLon=${maxLon}`;
 
@@ -270,7 +270,7 @@ async function loadAircraftInView() {
     aircraftLayer.clearLayers();
     aircraftMarkers.clear();
 
-    const API_BASE = "http://localhost:5000";
+    const API_BASE = "";
     const url =
       `${API_BASE}/api/aircraft?minLat=${minLat}&maxLat=${maxLat}&minLon=${minLon}&maxLon=${maxLon}`;
 
