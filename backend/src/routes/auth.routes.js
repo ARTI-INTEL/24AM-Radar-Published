@@ -97,6 +97,8 @@ authRouter.post("/login", async (req, res) => {
       }
     });
   } catch (err) {
+    console.error("LOGIN ERROR:", err);
     return res.status(500).json({ message: "Server error", error: String(err.message || err) });
   }
 });
+
