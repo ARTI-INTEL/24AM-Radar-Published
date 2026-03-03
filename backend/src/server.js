@@ -12,7 +12,21 @@ import { fileURLToPath } from "url";
 
 const app = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "default-src": ["'self'"],
+        "script-src": ["'self'", "https://unpkg.com"],
+        "style-src": ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+        "img-src": ["'self'", "data:", "blob:", "https://*.tile.openstreetmap.org", "https://*.basemaps.cartocdn.com", "https://tile.openweathermap.org"],
+        "connect-src": ["'self'", "https://tile.openweathermap.org", "https://*.basemaps.cartocdn.com", "https://*.tile.openstreetmap.org"],
+        "worker-src": ["'self'", "blob:"],
+      },
+    },
+  })
+);
 app.use(express.json());
 
 const __filename = fileURLToPath(import.meta.url);
