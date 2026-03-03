@@ -4,7 +4,7 @@ import { getOpenSkyToken } from "../openskyToken.js";
 const OPENSKY_BASE = "https://opensky-network.org/api";
 
 export function startAircraftPoller() {
-  const intervalMs = Number(process.env.AIRCRAFT_POLL_MS || 60_000);
+  const intervalMs = Number(process.env.AIRCRAFT_POLL_MS || 90_000);
 
   async function poll() {
     try {
