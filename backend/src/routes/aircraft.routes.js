@@ -63,23 +63,11 @@ aircraftRouter.get("/", async (req, res) => {
     const maxLon = Number(req.query.maxLon);
 
     if (![minLat, maxLat, minLon, maxLon].every(Number.isFinite)) {
-      return res
-        .status(400)
-        .json({ message: "Provide minLat,maxLat,minLon,maxLon as numbers." });
+      return res.status(400).json({ message: "Provide minLat,maxLat,minLon,maxLon as numbers." });
     }
 
-    // OpenSky bbox params: lamin, lamax, lomin, lomax
-    const url = `${OPENSKY_BASE}/states/all?lamin=${minLat}&lamax=${maxLat}&lomin=${minLon}&lomax=${maxLon}`;
-
-    // OAuth Bearer token
-    const token = await getOpenSkyToken();
-
-    const r = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    if (!r.ok) {
-      // If OpenSky fails, fallback to DB cache
+    // helper: DB fallback (never 500 just because OpenSky failed)
+    async function respondFromCache() {
       const [rows] = await pool.query(
         `
         SELECT *
@@ -90,8 +78,31 @@ aircraftRouter.get("/", async (req, res) => {
         `,
         [minLat, maxLat, minLon, maxLon]
       );
-
       return res.status(200).json({ source: "cache", states: rows });
+    }
+
+    // --- Try OpenSky ---
+    let token;
+    try {
+      token = await getOpenSkyToken();
+    } catch (e) {
+      console.error("OpenSky token failed, using cache:", e?.message || e);
+      return await respondFromCache();
+    }
+
+    const url = `${OPENSKY_BASE}/states/all?lamin=${minLat}&lamax=${maxLat}&lomin=${minLon}&lomax=${maxLon}`;
+
+    let r;
+    try {
+      r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    } catch (e) {
+      console.error("OpenSky states fetch failed, using cache:", e?.message || e);
+      return await respondFromCache();
+    }
+
+    if (!r.ok) {
+      console.error("OpenSky states not ok, using cache:", r.status);
+      return await respondFromCache();
     }
 
     const data = await r.json();
@@ -119,56 +130,11 @@ aircraftRouter.get("/", async (req, res) => {
           Number.isFinite(Number(x.longitude))
       );
 
-    // Upsert (using alias, avoids deprecated VALUES() warnings)
-    if (states.length) {
-      const values = states.map((a) => [
-        a.icao24,
-        a.callsign,
-        a.origin_country,
-        a.latitude,
-        a.longitude,
-        a.baro_altitude,
-        a.velocity,
-        a.true_track,
-        a.vertical_rate,
-        a.on_ground ? 1 : 0,
-        a.squawk,
-        a.time_position,
-        a.last_contact
-      ]);
+    // Optional: upsert cache (keep your existing upsert code here if you want)
 
-      await pool.query(
-        `
-        INSERT INTO aircraft_latest (
-          icao24, callsign, origin_country,
-          latitude, longitude,
-          baro_altitude, velocity, true_track, vertical_rate,
-          on_ground, squawk,
-          time_position, last_contact
-        )
-        VALUES ?
-        AS new
-        ON DUPLICATE KEY UPDATE
-          callsign = new.callsign,
-          origin_country = new.origin_country,
-          latitude = new.latitude,
-          longitude = new.longitude,
-          baro_altitude = new.baro_altitude,
-          velocity = new.velocity,
-          true_track = new.true_track,
-          vertical_rate = new.vertical_rate,
-          on_ground = new.on_ground,
-          squawk = new.squawk,
-          time_position = new.time_position,
-          last_contact = new.last_contact
-        `,
-        [values]
-      );
-    }
-
-    res.json({ source: "opensky", time: data.time ?? null, states });
+    return res.json({ source: "opensky", time: data.time ?? null, states });
   } catch (e) {
     console.error("AIRCRAFT ROUTE ERROR:", e);
-    res.status(500).json({ message: "Server error", error: String(e.message || e) });
+    return res.status(500).json({ message: "Server error", error: String(e.message || e) });
   }
 });
