@@ -168,6 +168,7 @@ aircraftRouter.get("/", async (req, res) => {
 
     res.json({ source: "opensky", time: data.time ?? null, states });
   } catch (e) {
+    console.error("AIRCRAFT ROUTE ERROR:", e);
     res.status(500).json({ message: "Server error", error: String(e.message || e) });
   }
 });
