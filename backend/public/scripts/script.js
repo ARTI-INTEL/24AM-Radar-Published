@@ -126,10 +126,15 @@ if (registerForm) {
 }
 
 // ================== LOGOUT ==================
-function LogOut() {
-  clearAuth();
-  window.location.href = "html/login.html";
-}
+addEventListener ("DOMContentLoaded", () => {
+  const logOutBtn = document.getElementById("logOut");
+  if (logOutBtn) {
+    logOutBtn.addEventListener("click", () => {
+      clearAuth();
+      window.location.href = "login.html";
+    });
+  }
+});
 
 function getToken() {
   return localStorage.getItem("authToken");
