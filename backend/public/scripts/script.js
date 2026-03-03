@@ -128,7 +128,7 @@ if (registerForm) {
 // ================== LOGOUT ==================
 function LogOut() {
   clearAuth();
-  window.location.href = "login.html";
+  window.location.href = "html/login.html";
 }
 
 function getToken() {
