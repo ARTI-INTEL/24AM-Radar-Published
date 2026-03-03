@@ -66,75 +66,20 @@ aircraftRouter.get("/", async (req, res) => {
       return res.status(400).json({ message: "Provide minLat,maxLat,minLon,maxLon as numbers." });
     }
 
-    // helper: DB fallback (never 500 just because OpenSky failed)
-    async function respondFromCache() {
-      const [rows] = await pool.query(
-        `
-        SELECT *
-        FROM aircraft_latest
-        WHERE latitude BETWEEN ? AND ?
-          AND longitude BETWEEN ? AND ?
-        LIMIT 3000
-        `,
-        [minLat, maxLat, minLon, maxLon]
-      );
-      return res.status(200).json({ source: "cache", states: rows });
-    }
+    const [rows] = await pool.query(
+      `
+      SELECT *
+      FROM aircraft_latest
+      WHERE latitude BETWEEN ? AND ?
+        AND longitude BETWEEN ? AND ?
+      LIMIT 3000
+      `,
+      [minLat, maxLat, minLon, maxLon]
+    );
 
-    // --- Try OpenSky ---
-    let token;
-    try {
-      token = await getOpenSkyToken();
-    } catch (e) {
-      console.error("OpenSky token failed, using cache:", e?.message || e);
-      return await respondFromCache();
-    }
-
-    const url = `${OPENSKY_BASE}/states/all?lamin=${minLat}&lamax=${maxLat}&lomin=${minLon}&lomax=${maxLon}`;
-
-    let r;
-    try {
-      r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    } catch (e) {
-      console.error("OpenSky states fetch failed, using cache:", e?.message || e);
-      return await respondFromCache();
-    }
-
-    if (!r.ok) {
-      console.error("OpenSky states not ok, using cache:", r.status);
-      return await respondFromCache();
-    }
-
-    const data = await r.json();
-
-    const states = (data.states || [])
-      .map((s) => ({
-        icao24: (s?.[0] || "").trim(),
-        callsign: (s?.[1] || "").trim() || null,
-        origin_country: s?.[2] ?? null,
-        time_position: s?.[3] ?? null,
-        last_contact: s?.[4] ?? null,
-        longitude: s?.[5] ?? null,
-        latitude: s?.[6] ?? null,
-        baro_altitude: s?.[7] ?? null,
-        on_ground: s?.[8] ?? null,
-        velocity: s?.[9] ?? null,
-        true_track: s?.[10] ?? null,
-        vertical_rate: s?.[11] ?? null,
-        squawk: s?.[14] ?? null
-      }))
-      .filter(
-        (x) =>
-          x.icao24 &&
-          Number.isFinite(Number(x.latitude)) &&
-          Number.isFinite(Number(x.longitude))
-      );
-
-    // Optional: upsert cache (keep your existing upsert code here if you want)
-
-    return res.json({ source: "opensky", time: data.time ?? null, states });
+    return res.json({ source: "cache", states: rows });
   } catch (e) {
-    console.error("AIRCRAFT ROUTE ERROR:", e);
+    console.error("AIRCRAFT CACHE ERROR:", e);
     return res.status(500).json({ message: "Server error", error: String(e.message || e) });
   }
 });

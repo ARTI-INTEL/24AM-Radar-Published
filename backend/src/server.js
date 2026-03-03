@@ -9,6 +9,9 @@ import { airportsRouter } from "./routes/airports.routes.js";
 import { aircraftRouter } from "./routes/aircraft.routes.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import { startAircraftPoller } from "./jobs/aircraftPoller.js";
+
+startAircraftPoller();
 
 const app = express();
 
