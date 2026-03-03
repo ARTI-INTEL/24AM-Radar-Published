@@ -9,7 +9,7 @@ export function startAircraftPoller() {
   async function poll() {
     try {
       // Example: poll a fixed region (UAE-ish). You can change these.
-      const minLat = 15.0, maxLat = 33.0, minLon = 45.0, maxLon = 65.0;
+      const minLat = -90.0, maxLat = 90.0, minLon = -180.0, maxLon = 180.0;
 
       const token = await getOpenSkyToken();
       const url = `${OPENSKY_BASE}/states/all?lamin=${minLat}&lamax=${maxLat}&lomin=${minLon}&lomax=${maxLon}`;
