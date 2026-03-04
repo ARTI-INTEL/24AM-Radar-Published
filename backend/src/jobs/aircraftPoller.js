@@ -84,8 +84,9 @@ export function startAircraftPoller() {
       );
 
       console.log(`Poll OK: ${states.length} aircraft cached`);
-    } catch (e) {
-      console.error("Poll FAILED:", e?.message || e);
+    } catch (err) {
+      console.error("Poll FAILED:", err?.message);
+      console.error("Poll FAILED cause:", err?.cause?.message || err?.cause || "(none)");
     }
   }
 
