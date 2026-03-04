@@ -3,19 +3,62 @@ import { getOpenSkyToken } from "../openskyToken.js";
 
 const OPENSKY_BASE = "https://opensky-network.org/api";
 
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchRetry(url, options, attempts = 3) {
+  let lastErr;
+
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await fetchWithTimeout(url, options);
+    } catch (err) {
+      lastErr = err;
+
+      console.error(`Aircraft fetch attempt ${i} failed:`, err?.message);
+      console.error("Cause:", err?.cause?.message || err?.cause || "(none)");
+
+      if (i < attempts) {
+        await sleep(800 * Math.pow(2, i - 1));
+      }
+    }
+  }
+
+  throw lastErr;
+}
+
 export function startAircraftPoller() {
   const intervalMs = Number(process.env.AIRCRAFT_POLL_MS || 90_000);
 
   async function poll() {
     try {
-      // Example: poll a fixed region (UAE-ish). You can change these.
+
       const minLat = -90.0, maxLat = 90.0, minLon = -180.0, maxLon = 180.0;
 
       const token = await getOpenSkyToken();
+
       const url = `${OPENSKY_BASE}/states/all?lamin=${minLat}&lamax=${maxLat}&lomin=${minLon}&lomax=${maxLon}`;
 
-      const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-      if (!r.ok) throw new Error(`OpenSky states failed: ${r.status}`);
+      const r = await fetchRetry(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!r.ok) {
+        const text = await r.text();
+        throw new Error(`OpenSky states failed: ${r.status} ${text.slice(0,200)}`);
+      }
 
       const data = await r.json();
 
@@ -35,9 +78,17 @@ export function startAircraftPoller() {
           vertical_rate: s?.[11] ?? null,
           squawk: s?.[14] ?? null
         }))
-        .filter(x => x.icao24 && Number.isFinite(Number(x.latitude)) && Number.isFinite(Number(x.longitude)));
+        .filter(
+          (x) =>
+            x.icao24 &&
+            Number.isFinite(Number(x.latitude)) &&
+            Number.isFinite(Number(x.longitude))
+        );
 
-      if (!states.length) return;
+      if (!states.length) {
+        console.log("Poll OK: 0 aircraft");
+        return;
+      }
 
       const values = states.map((a) => [
         a.icao24,
@@ -65,20 +116,19 @@ export function startAircraftPoller() {
           time_position, last_contact
         )
         VALUES ?
-        AS new
         ON DUPLICATE KEY UPDATE
-          callsign = new.callsign,
-          origin_country = new.origin_country,
-          latitude = new.latitude,
-          longitude = new.longitude,
-          baro_altitude = new.baro_altitude,
-          velocity = new.velocity,
-          true_track = new.true_track,
-          vertical_rate = new.vertical_rate,
-          on_ground = new.on_ground,
-          squawk = new.squawk,
-          time_position = new.time_position,
-          last_contact = new.last_contact
+          callsign = VALUES(callsign),
+          origin_country = VALUES(origin_country),
+          latitude = VALUES(latitude),
+          longitude = VALUES(longitude),
+          baro_altitude = VALUES(baro_altitude),
+          velocity = VALUES(velocity),
+          true_track = VALUES(true_track),
+          vertical_rate = VALUES(vertical_rate),
+          on_ground = VALUES(on_ground),
+          squawk = VALUES(squawk),
+          time_position = VALUES(time_position),
+          last_contact = VALUES(last_contact)
         `,
         [values]
       );
@@ -90,7 +140,6 @@ export function startAircraftPoller() {
     }
   }
 
-  // run once immediately, then every interval
   poll();
   setInterval(poll, intervalMs);
 }
