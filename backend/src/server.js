@@ -69,3 +69,21 @@ app.use("/api/airports", airportsRouter);
 
 app.use("/api/aircraft", aircraftRouter);
 
+// ======================================================
+// AIRCRAFT CLEANUP JOB
+// Deletes aircraft not updated in last 5 minutes
+// Runs every 15 minutes
+// ======================================================
+
+setInterval(async () => {
+  try {
+    const [result] = await pool.query(
+      `DELETE FROM aircraft_latest
+       WHERE updated_at < (NOW() - INTERVAL 5 MINUTE)`
+    );
+
+    console.log(`Aircraft cleanup: removed ${result.affectedRows} old aircraft`);
+  } catch (err) {
+    console.error("Aircraft cleanup failed:", err.message);
+  }
+}, 15 * 60 * 1000);
