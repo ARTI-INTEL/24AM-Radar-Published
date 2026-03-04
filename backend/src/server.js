@@ -87,3 +87,15 @@ setInterval(async () => {
     console.error("Aircraft cleanup failed:", err.message);
   }
 }, 15 * 60 * 1000);
+
+app.get("/net-test", async (req, res) => {
+  try {
+    const r = await fetch("https://example.com");
+    res.json({ status: r.status });
+  } catch (e) {
+    res.json({
+      error: e.message,
+      cause: e.cause?.message
+    });
+  }
+});
