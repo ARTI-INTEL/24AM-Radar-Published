@@ -36,3 +36,25 @@ aircraftRouter.get("/", async (req, res) => {
     return res.status(500).json({ message: "Server error", error: String(e.message || e) });
   }
 });
+
+// Past Positions for an  aircraft
+aircraftRouter.get("/:icao/track", async (req, res) => {
+  try {
+    const icao = req.params.icao;
+
+    const [rows] = await pool.query(
+      `
+      SELECT lat, lon
+      FROM aircraft_positions
+      WHERE icao = ?
+      ORDER BY time ASC
+      `,
+      [icao]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to get aircraft track" });
+  }
+});

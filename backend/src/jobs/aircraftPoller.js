@@ -3,62 +3,24 @@ import { getOpenSkyToken } from "../openskyToken.js";
 
 const OPENSKY_BASE = "https://opensky-network.org/api";
 
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
-}
-
-async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-async function fetchRetry(url, options, attempts = 3) {
-  let lastErr;
-
-  for (let i = 1; i <= attempts; i++) {
-    try {
-      return await fetchWithTimeout(url, options);
-    } catch (err) {
-      lastErr = err;
-
-      console.error(`Aircraft fetch attempt ${i} failed:`, err?.message);
-      console.error("Cause:", err?.cause?.message || err?.cause || "(none)");
-
-      if (i < attempts) {
-        await sleep(800 * Math.pow(2, i - 1));
-      }
-    }
-  }
-
-  throw lastErr;
-}
-
 export function startAircraftPoller() {
   const intervalMs = Number(process.env.AIRCRAFT_POLL_MS || 90_000);
 
   async function poll() {
     try {
-
-      const minLat = -90.0, maxLat = 90.0, minLon = -180.0, maxLon = 180.0;
+      // Whole world bounds
+      const minLat = -90.0,
+        maxLat = 90.0,
+        minLon = -180.0,
+        maxLon = 180.0;
 
       const token = await getOpenSkyToken();
-
       const url = `${OPENSKY_BASE}/states/all?lamin=${minLat}&lamax=${maxLat}&lomin=${minLon}&lomax=${maxLon}`;
 
-      const r = await fetchRetry(url, {
+      const r = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
-      if (!r.ok) {
-        const text = await r.text();
-        throw new Error(`OpenSky states failed: ${r.status} ${text.slice(0,200)}`);
-      }
+      if (!r.ok) throw new Error(`OpenSky states failed: ${r.status}`);
 
       const data = await r.json();
 
@@ -78,18 +40,21 @@ export function startAircraftPoller() {
           vertical_rate: s?.[11] ?? null,
           squawk: s?.[14] ?? null
         }))
+        // ✅ Safer numeric checks (no weird Number() coercion)
         .filter(
           (x) =>
             x.icao24 &&
-            Number.isFinite(Number(x.latitude)) &&
-            Number.isFinite(Number(x.longitude))
+            typeof x.latitude === "number" &&
+            typeof x.longitude === "number" &&
+            Number.isFinite(x.latitude) &&
+            Number.isFinite(x.longitude)
         );
 
-      if (!states.length) {
-        console.log("Poll OK: 0 aircraft");
-        return;
-      }
+      if (!states.length) return;
 
+      // =========================
+      // 1) Upsert latest aircraft
+      // =========================
       const values = states.map((a) => [
         a.icao24,
         a.callsign,
@@ -106,6 +71,8 @@ export function startAircraftPoller() {
         a.last_contact
       ]);
 
+      // ✅ FIX: correct MySQL ON DUPLICATE KEY UPDATE syntax
+      // Make sure aircraft_latest.icao24 is PRIMARY KEY or UNIQUE
       await pool.query(
         `
         INSERT INTO aircraft_latest (
@@ -133,13 +100,33 @@ export function startAircraftPoller() {
         [values]
       );
 
+      // =========================
+      // 2) Insert track positions
+      // (only: icao, time, lat, lon)
+      // =========================
+      const trackValues = states.map((a) => [
+        a.icao24,
+        // optional: use OpenSky last_contact if available (seconds -> ms)
+        a.last_contact ? new Date(a.last_contact * 1000) : new Date(),
+        a.latitude,
+        a.longitude
+      ]);
+
+      await pool.query(
+        `
+        INSERT INTO aircraft_positions (icao, time, lat, lon)
+        VALUES ?
+        `,
+        [trackValues]
+      );
+
       console.log(`Poll OK: ${states.length} aircraft cached`);
-    } catch (err) {
-      console.error("Poll FAILED:", err?.message);
-      console.error("Poll FAILED cause:", err?.cause?.message || err?.cause || "(none)");
+    } catch (e) {
+      console.error("Poll FAILED:", e?.message || e);
     }
   }
 
+  // Run once immediately, then every interval
   poll();
   setInterval(poll, intervalMs);
 }

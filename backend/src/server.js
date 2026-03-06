@@ -99,3 +99,11 @@ app.get("/net-test", async (req, res) => {
     });
   }
 });
+
+// Past positions cleanup (older than 24h)
+setInterval(async () => {
+  await pool.query(`
+    DELETE FROM aircraft_positions
+    WHERE time < (NOW() - INTERVAL 12 HOUR)
+  `);
+}, 15 * 60 * 1000);
