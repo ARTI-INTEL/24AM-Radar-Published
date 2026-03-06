@@ -27,7 +27,7 @@ function ChangeUsername() {
 
 // Frontend to Backend Connection
 // ================== CONFIG ==================
-const API_BASE = "";
+const API_BASE = "https://24am-radar-published-production.up.railway.app";
 
 // ================== SAVE AUTH ==================
 function saveAuth(token, user) {
