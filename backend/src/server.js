@@ -43,10 +43,7 @@ app.get("/", (req, res) => {
 });
 
 app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN?.split(",").map(s => s.trim()) ?? "*",
-    credentials: false
-  })
+  cors()
 );
 
 app.get("/health", async (_req, res) => {
