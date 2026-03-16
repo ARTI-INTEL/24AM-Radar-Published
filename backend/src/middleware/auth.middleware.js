@@ -1,3 +1,15 @@
+// File: auth.middleware.js
+// Project: 24Air Radar
+// Author: Muhammad Faiq Imran
+// Last Modified: 15/03/2026
+
+// Description:
+//   This file manages authentication-related API routes for the 24Air Radar application.
+//   It includes endpoints for user registration and login, handling password hashing and JWT token generation.
+// 
+// Dependencies:
+//  - jsonwebtoken
+
 import jwt from "jsonwebtoken";
 
 export function requireAuth(req, res, next) {

@@ -1,3 +1,16 @@
+// File: user.routes.js
+// Project: 24Air Radar
+// Author: Muhammad Faiq Imran
+// Last Modified: 15/03/2026
+
+// Description:
+//   This file manages user-related API routes for the 24Air Radar application. 
+//   It includes endpoints for updating the user's username and password.
+// 
+// Dependencies:
+//  - express
+//  - bcryptjs
+
 import express from "express";
 import bcrypt from "bcryptjs";
 import { pool } from "../db.js";

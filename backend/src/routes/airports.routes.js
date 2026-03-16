@@ -1,13 +1,25 @@
+// File: airports.routes.js
+// Project: 24Air Radar
+// Author: Muhammad Faiq Imran
+// Last Modified: 15/03/2026
+
+// Description:
+//   This file manages airport-related API routes for the 24Air Radar application. 
+//   It includes endpoints for retrieving airports within a bounding box and searching for airports.
+// 
+// Dependencies:
+//  - express
+
 import express from "express";
 import { pool } from "../db.js";
 
-export const airportsRouter = express.Router();
+export const AirportsRouter = express.Router();
 
 /**
- * GET /api/airports?minLat=&maxLat=&minLon=&maxLon=
- * Returns airports within the bounding box
+ * GET /api/Airports?minLat=&maxLat=&minLon=&maxLon=
+ * Returns Airports within the bounding box
  */
-airportsRouter.get("/", async (req, res) => {
+AirportsRouter.get("/", async (req, res) => {
   try {
     const minLat = Number(req.query.minLat);
     const maxLat = Number(req.query.maxLat);
@@ -22,7 +34,7 @@ airportsRouter.get("/", async (req, res) => {
       `
       SELECT 
         idAirport, Name, City, Country, IATA, ICAO, Longitude, latidude
-      FROM airport
+      FROM Airport
       WHERE latidude BETWEEN ? AND ?
         AND Longitude BETWEEN ? AND ?
         AND ICAO IS NOT NULL
@@ -38,10 +50,10 @@ airportsRouter.get("/", async (req, res) => {
 });
 
 /**
- * GET /api/airports/search?q=dubai
- * Search airports by name, city, IATA, ICAO
+ * GET /api/Airports/search?q=dubai
+ * Search Airports by name, city, IATA, ICAO
  */
-airportsRouter.get("/search", async (req, res) => {
+AirportsRouter.get("/search", async (req, res) => {
   try {
     const q = String(req.query.q || "").trim();
 
@@ -54,7 +66,7 @@ airportsRouter.get("/search", async (req, res) => {
       `
       SELECT
         idAirport, Name, City, Country, IATA, ICAO, Longitude, latidude
-      FROM airport
+      FROM Airport
       WHERE
         IATA = ?
         OR ICAO = ?

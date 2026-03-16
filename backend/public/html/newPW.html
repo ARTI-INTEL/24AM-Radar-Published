@@ -1,23 +1,43 @@
+<!--
+File: newPW.html
+Project: 24Air Radar
+Author: Muhammad Faiq Imran
+Last Modified: 15/03/2026
+
+Description:
+  This file serves as the new password page for the 24Air Radar application. 
+  It provides a form for users to set a new password. 
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register • 24AM Radar</title>
-  <link rel="stylesheet" href="/styles/style.css">
+  <title>Register • 24Air Radar</title>
+  <link rel="stylesheet" href="../styles/style.css">
 </head>
 <body class="auth-page">
 
-  <div class="auth-title">Register to 24AM Radar</div>
+  <div class="auth-title">Register to 24Air Radar</div>
 
   <div class="auth-wrap">
     <form class="card" style="width:320px;">
         <!-- Uses your existing input style -->
-        <input type="password" placeholder="New Password" required id="newPassword">
-        <button class="primary-btn" type="submit" onclick="SetNewPassword()">Set New Password</button>
+        <div class="password-wrap">
+          <input id="password" type="password" placeholder="New Password" required>
+          <button type="button" class="toggle-password" data-target="password">Show</button>
+        </div>
+
+        <div class="password-wrap">
+          <input id="confirmPassword" type="password" placeholder="Confirm Password" required>
+          <button type="button" class="toggle-password" data-target="confirmPassword">Show</button>
+        </div>
+        
+
     </form>
   </div>
 
-  <script src="/scripts/script.js"></script>
+  <script src="../scripts/script.js"></script>
 </body>
 </html>

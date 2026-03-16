@@ -1,21 +1,38 @@
+<!--
+File: changePW.html
+Project: 24Air Radar
+Author: Muhammad Faiq Imran
+Last Modified: 15/03/2026
+
+Description:
+  This file serves as the password change page for the 24Air Radar application. 
+  It provides a form for users to update their password. 
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>24AM Radar</title>
-  <link rel="stylesheet" href="/styles/style.css">
+  <title>24Air Radar</title>
+  <link rel="stylesheet" href="../styles/style.css">
 </head>
 <body class="auth-page">
   <div class="auth-wrap">
     <form id="changePWForm" class="card" style="width:320px;">
       <div class="card-header"><span>Change Password</span></div>
 
-      <input id="currentPassword" type="password" placeholder="Current Password" required>
-      <input id="newPassword" type="password" placeholder="New Password" required>
+      <div class="password-wrap">
+        <input id="currentPassword" type="password" placeholder="Current Password" required>
+        <button type="button" class="toggle-password" data-target="currentPassword">Show</button>
+      </div>
+
+      <div class="password-wrap">
+        <input id="newPassword" type="password" placeholder="New Password" required>
+        <button type="button" class="toggle-password" data-target="newPassword">Show</button>
+      </div>
 
       <button class="primary-btn" type="submit">Update</button>
-      <p id="changePWMsg" style="margin-top:10px;"></p>
 
       <div class="auth-link">
         <a href="settings.html">Back</a>
@@ -23,6 +40,6 @@
     </form>
   </div>
 
-  <script src="/scripts/script.js"></script>
+  <script src="../scripts/script.js"></script>
 </body>
 </html>

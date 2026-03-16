@@ -1,3 +1,23 @@
+/* 
+File: map.js
+Project: 24Air Radar
+Author: Muhammad Faiq Imran
+Last Modified: 15/03/2026
+
+Description:
+  This file contains the JavaScript code for the 24Air Radar application, handling map initialization, 
+  real-time flight data loading, user interactions with the map, and search functionality. 
+  It uses Leaflet.js for map rendering and interacts with the backend API to fetch aircraft and airport data, 
+  manage filters, and display relevant information on the map. The script also includes functionality for showing 
+  aircraft tracks and predicted flight paths based on heading.
+
+Dependencies:
+  - Leaflet.js
+  - OpenSky API data (via backend)
+  - Node.js
+  - Express.js
+*/
+
 var map = L.map('map', {
   center: [25.276987, 55.296249],
   zoom: 8,
@@ -137,20 +157,20 @@ map.on("drag", () => map.panInsideBounds(worldBounds, { animate: false }));
 map.on("zoomend", () => map.panInsideBounds(worldBounds, { animate: false }));
 
 // --- Airports Layer ---
-const airportToggle = document.getElementById("airportToggle");
-const airportsLayer = L.layerGroup().addTo(map);
+const AirportToggle = document.getElementById("AirportToggle");
+const AirportsLayer = L.layerGroup().addTo(map);
 
 // ✅ Create icon once (performance improvement)
-const airportIcon = L.icon({
-  iconUrl: "../images/airport-Icon.png",
+const AirportIcon = L.icon({
+  iconUrl: "../images/Airport-Icon.png",
   iconSize: [28, 28],
   iconAnchor: [14, 14],
   popupAnchor: [0, -14]
 });
 
-// Load airports inside current view
+// Load Airports inside current view
 async function loadAirportsInView() {
-  if (!airportToggle.checked) return;
+  if (!AirportToggle.checked) return;
 
   const b = map.getBounds();
   const minLat = b.getSouth();
@@ -159,41 +179,41 @@ async function loadAirportsInView() {
   const maxLon = b.getEast();
 
   try {
-    airportsLayer.clearLayers();
+    AirportsLayer.clearLayers();
 
     const url =
-      `${API_BASE}/api/airports?minLat=${minLat}&maxLat=${maxLat}&minLon=${minLon}&maxLon=${maxLon}`;
+      `${API_BASE}/api/Airports?minLat=${minLat}&maxLat=${maxLat}&minLon=${minLon}&maxLon=${maxLon}`;
 
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Airports API failed: ${res.status}`);
 
-    const airports = await res.json();
+    const Airports = await res.json();
 
-    airports.forEach((a) => {
+    Airports.forEach((a) => {
       const lat = Number(a.latidude);
       const lon = Number(a.Longitude);
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
 
-      const marker = L.marker([lat, lon], { icon: airportIcon });
+      const marker = L.marker([lat, lon], { icon: AirportIcon });
 
       const title = `${a.Name || "Airport"} (${a.IATA || "-"} / ${a.ICAO || "-"})`;
       const subtitle = `${a.City || ""}${a.City ? ", " : ""}${a.Country || ""}`;
 
       marker.bindPopup(
         `
-        <div class="airport-popup-card">
-          <div class="airport-popup-title">${title}</div>
-          <div class="airport-popup-subtitle">${subtitle}</div>
+        <div class="Airport-popup-card">
+          <div class="Airport-popup-title">${title}</div>
+          <div class="Airport-popup-subtitle">${subtitle}</div>
         </div>
         `,
         {
-          className: "airport-popup-theme leaflet-popup",
+          className: "Airport-popup-theme leaflet-popup",
           closeButton: false,
           autoPan: true
         }
       );
 
-      marker.addTo(airportsLayer);
+      marker.addTo(AirportsLayer);
     });
   } catch (err) {
     console.error(err);
@@ -202,25 +222,25 @@ async function loadAirportsInView() {
 
 map.on("moveend", loadAirportsInView);
 
-airportToggle.addEventListener("change", () => {
-  if (airportToggle.checked) {
-    airportsLayer.addTo(map);
+AirportToggle.addEventListener("change", () => {
+  if (AirportToggle.checked) {
+    AirportsLayer.addTo(map);
     loadAirportsInView();
   } else {
-    map.removeLayer(airportsLayer);
-    airportsLayer.clearLayers();
+    map.removeLayer(AirportsLayer);
+    AirportsLayer.clearLayers();
   }
 });
 
 loadAirportsInView();
 
 // --- Aircraft Layer ---
-const aircraftToggle = document.getElementById("aircraftToggle");
-const aircraftLayer = L.layerGroup().addTo(map);
+const AircraftToggle = document.getElementById("AircraftToggle");
+const AircraftLayer = L.layerGroup().addTo(map);
 
-// ✅ Store latest aircraft + marker lookup for search jump
-let aircraftList = [];
-const aircraftMarkers = new Map();
+// ✅ Store latest Aircraft + marker lookup for search jump
+let AircraftList = [];
+const AircraftMarkers = new Map();
 
 // simple plane icon (no rotation plugin needed)
 function makePlaneDivIcon(deg = 0) {
@@ -281,7 +301,7 @@ function matchesFilters(a, f) {
 }
 
 async function loadAircraftInView() {
-  if (!aircraftToggle.checked) return;
+  if (!AircraftToggle.checked) return;
 
   const b = map.getBounds();
   const minLat = b.getSouth();
@@ -290,11 +310,11 @@ async function loadAircraftInView() {
   const maxLon = b.getEast();
 
   try {
-    aircraftLayer.clearLayers();
-    aircraftMarkers.clear();
+    AircraftLayer.clearLayers();
+    AircraftMarkers.clear();
 
     const url =
-      `${API_BASE}/api/aircraft?minLat=${minLat}&maxLat=${maxLat}&minLon=${minLon}&maxLon=${maxLon}`;
+      `${API_BASE}/api/Aircraft?minLat=${minLat}&maxLat=${maxLat}&minLon=${minLon}&maxLon=${maxLon}`;
 
     const res = await fetch(url);
     setApiStatus(res.ok);
@@ -305,7 +325,7 @@ async function loadAircraftInView() {
     setLastUpdated();
     const states = data.states || [];
 
-    aircraftList = states;
+    AircraftList = states;
 
     const filters = getFilterValues();
 
@@ -328,9 +348,9 @@ async function loadAircraftInView() {
       const speedKt = Number.isFinite(Number(speed)) ? Math.round(Number(speed) * 1.94384) : null;
 
       marker.bindPopup(`
-        <div class="aircraft-popup-card">
-          <div class="aircraft-popup-title">${callsign}</div>
-          <div class="aircraft-popup-subtitle">
+        <div class="Aircraft-popup-card">
+          <div class="Aircraft-popup-title">${callsign}</div>
+          <div class="Aircraft-popup-subtitle">
             ICAO24: ${a.icao24 || "-"}<br/>
             Country: ${a.origin_country || "-"}<br/>
             Alt: ${altFt ?? "-"} ft<br/>
@@ -338,7 +358,7 @@ async function loadAircraftInView() {
             Squawk: ${a.squawk || "-"}
           </div>
         </div>
-      `, { closeButton: false, autoPan: true, className: "aircraft-popup-theme leaflet-popup" });
+      `, { closeButton: false, autoPan: true, className: "Aircraft-popup-theme leaflet-popup" });
 
       marker.on("click", (e) => {
         L.DomEvent.stopPropagation(e);
@@ -346,9 +366,9 @@ async function loadAircraftInView() {
         drawHeadingLine(a.latitude, a.longitude, a.true_track, 50);
       });
 
-      marker.addTo(aircraftLayer);
+      marker.addTo(AircraftLayer);
 
-      if (a.icao24) aircraftMarkers.set(String(a.icao24).trim(), marker);
+      if (a.icao24) AircraftMarkers.set(String(a.icao24).trim(), marker);
     });
 
   } catch (err) {
@@ -361,33 +381,33 @@ async function loadAircraftInView() {
 map.on("moveend", loadAircraftInView);
 
 // refresh every 10s while toggle is ON
-let aircraftTimer = null;
+let AircraftTimer = null;
 
 function startAircraftRefresh() {
-  if (aircraftTimer) clearInterval(aircraftTimer);
-  aircraftTimer = setInterval(loadAircraftInView, 10000);
+  if (AircraftTimer) clearInterval(AircraftTimer);
+  AircraftTimer = setInterval(loadAircraftInView, 10000);
 }
 
 function stopAircraftRefresh() {
-  if (aircraftTimer) clearInterval(aircraftTimer);
-  aircraftTimer = null;
+  if (AircraftTimer) clearInterval(AircraftTimer);
+  AircraftTimer = null;
 }
 
-aircraftToggle.addEventListener("change", () => {
-  if (aircraftToggle.checked) {
-    aircraftLayer.addTo(map);
+AircraftToggle.addEventListener("change", () => {
+  if (AircraftToggle.checked) {
+    AircraftLayer.addTo(map);
     loadAircraftInView();
     startAircraftRefresh();
   } else {
-    map.removeLayer(aircraftLayer);
-    aircraftLayer.clearLayers();
-    aircraftMarkers.clear();
+    map.removeLayer(AircraftLayer);
+    AircraftLayer.clearLayers();
+    AircraftMarkers.clear();
     stopAircraftRefresh();
   }
 });
 
 // initial
-if (aircraftToggle.checked) startAircraftRefresh();
+if (AircraftToggle.checked) startAircraftRefresh();
 loadAircraftInView();
 
 // ✅ Make filters live: changing inputs updates the map
@@ -419,14 +439,14 @@ function filterAircraftByCallsign(query) {
   const q = query.trim().toLowerCase();
   if (!q) return [];
 
-  return aircraftList
+  return AircraftList
     .filter(a => {
       const callsign = (a.callsign || "").trim().toLowerCase();
       return callsign.includes(q);
     })
     .slice(0, 10)
     .map(a => ({
-      type: "aircraft",
+      type: "Aircraft",
       callsign: (a.callsign || "").trim() || "Unknown",
       country: a.origin_country || "-",
       icao24: (a.icao24 || "").trim()
@@ -437,13 +457,13 @@ async function searchAirports(query) {
   const q = query.trim();
   if (!q) return [];
 
-  const res = await fetch(`${API_BASE}/api/airports/search?q=${encodeURIComponent(q)}`);
+  const res = await fetch(`${API_BASE}/api/Airports/search?q=${encodeURIComponent(q)}`);
   if (!res.ok) throw new Error(`Airport search failed: ${res.status}`);
 
-  const airports = await res.json();
+  const Airports = await res.json();
 
-  return airports.map(a => ({
-    type: "airport",
+  return Airports.map(a => ({
+    type: "Airport",
     name: a.Name || "Airport",
     city: a.City || "",
     country: a.Country || "",
@@ -459,16 +479,16 @@ function renderSearchResults(list) {
     resultsWrap.innerHTML = `
       <div class="flight-card">
         <div class="flight-title">No results</div>
-        <div class="flight-sub">Try an airport like DXB or a flight like EK403</div>
+        <div class="flight-sub">Try an Airport like DXB or a flight like EK403</div>
       </div>
     `;
     return;
   }
 
   resultsWrap.innerHTML = list.map(item => {
-    if (item.type === "aircraft") {
+    if (item.type === "Aircraft") {
       return `
-        <div class="flight-card search-result" data-type="aircraft" data-icao="${item.icao24}">
+        <div class="flight-card search-result" data-type="Aircraft" data-icao="${item.icao24}">
           <div class="flight-title">${item.callsign}</div>
           <div class="flight-sub">Aircraft • ICAO24: ${item.icao24 || "-"} • ${item.country}</div>
         </div>
@@ -478,7 +498,7 @@ function renderSearchResults(list) {
     return `
       <div
         class="flight-card search-result"
-        data-type="airport"
+        data-type="Airport"
         data-lat="${item.lat}"
         data-lon="${item.lon}"
         data-name="${item.name}"
@@ -510,10 +530,10 @@ async function runSearch() {
   resultsWrap.classList.remove("hidden");
 
   try {
-    const aircraftMatches = filterAircraftByCallsign(q);
-    const airportMatches = await searchAirports(q);
+    const AircraftMatches = filterAircraftByCallsign(q);
+    const AirportMatches = await searchAirports(q);
 
-    const combined = [...aircraftMatches, ...airportMatches].slice(0, 20);
+    const combined = [...AircraftMatches, ...AirportMatches].slice(0, 20);
     renderSearchResults(combined);
   } catch (err) {
     console.error(err);
@@ -535,12 +555,12 @@ if (searchInput && resultsWrap) {
 
     const type = card.dataset.type;
 
-    if (type === "aircraft") {
+    if (type === "Aircraft") {
       const icao = card.dataset.icao;
-      const marker = aircraftMarkers.get(icao);
+      const marker = AircraftMarkers.get(icao);
 
       if (!marker) {
-        alert("That aircraft is not currently visible on the map. Try clearing filters or moving the map.");
+        alert("That Aircraft is not currently visible on the map. Try clearing filters or moving the map.");
         return;
       }
 
@@ -549,7 +569,7 @@ if (searchInput && resultsWrap) {
       return;
     }
 
-    if (type === "airport") {
+    if (type === "Airport") {
       const lat = Number(card.dataset.lat);
       const lon = Number(card.dataset.lon);
       const name = card.dataset.name || "Airport";
@@ -566,17 +586,17 @@ if (searchInput && resultsWrap) {
         map.removeLayer(searchAirportMarker);
       }
 
-      searchAirportMarker = L.marker([lat, lon], { icon: airportIcon }).addTo(map);
+      searchAirportMarker = L.marker([lat, lon], { icon: AirportIcon }).addTo(map);
 
       searchAirportMarker.bindPopup(
         `
-        <div class="airport-popup-card">
-          <div class="airport-popup-title">${name} (${iata} / ${icao})</div>
-          <div class="airport-popup-subtitle">${city}${city && country ? ", " : ""}${country}</div>
+        <div class="Airport-popup-card">
+          <div class="Airport-popup-title">${name} (${iata} / ${icao})</div>
+          <div class="Airport-popup-subtitle">${city}${city && country ? ", " : ""}${country}</div>
         </div>
         `,
         {
-          className: "airport-popup-theme leaflet-popup",
+          className: "Airport-popup-theme leaflet-popup",
           closeButton: false,
           autoPan: true
         }
@@ -631,7 +651,7 @@ if (sidebar) {
 let currentTrack = null;
 
 async function showTrack(icao) {
-  const res = await fetch(`${API_BASE}/api/aircraft/${icao}/track`);
+  const res = await fetch(`${API_BASE}/api/Aircraft/${icao}/track`);
   if (!res.ok) {
     alert("Failed to load track data");
     return;

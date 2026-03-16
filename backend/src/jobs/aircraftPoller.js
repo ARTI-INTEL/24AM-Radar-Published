@@ -1,10 +1,23 @@
+// File: aircraftPoller.js
+// Project: 24Air Radar
+// Author: Muhammad Faiq Imran
+// Last Modified: 15/03/2026
+
+// Description:
+//   This file manages aircraft-related API routes for the 24Air Radar application. 
+//   It includes endpoints for retrieving aircraft states within a bounding box and searching for aircraft.
+// 
+// Dependencies:
+//  - opensky-network.org API
+// - mysql2 for database interactions
+
 import { pool } from "../db.js";
 import { getOpenSkyToken } from "../openskyToken.js";
 
 const OPENSKY_BASE = "https://opensky-network.org/api";
 
 export function startAircraftPoller() {
-  const intervalMs = Number(process.env.AIRCRAFT_POLL_MS || 90_000);
+  const intervalMs = Number(process.env.AirCRAFT_POLL_MS || 90_000);
 
   async function poll() {
     try {
@@ -53,7 +66,7 @@ export function startAircraftPoller() {
       if (!states.length) return;
 
       // =========================
-      // 1) Upsert latest aircraft
+      // 1) Upsert latest Aircraft
       // =========================
       const values = states.map((a) => [
         a.icao24,
@@ -72,10 +85,10 @@ export function startAircraftPoller() {
       ]);
 
       // ✅ FIX: correct MySQL ON DUPLICATE KEY UPDATE syntax
-      // Make sure aircraft_latest.icao24 is PRIMARY KEY or UNIQUE
+      // Make sure Aircraft_latest.icao24 is PRIMARY KEY or UNIQUE
       await pool.query(
         `
-        INSERT INTO aircraft_latest (
+        INSERT INTO Aircraft_latest (
           icao24, callsign, origin_country,
           latitude, longitude,
           baro_altitude, velocity, true_track, vertical_rate,
@@ -114,13 +127,13 @@ export function startAircraftPoller() {
 
       await pool.query(
         `
-        INSERT INTO aircraft_positions (icao, time, lat, lon)
+        INSERT INTO Aircraft_positions (icao, time, lat, lon)
         VALUES ?
         `,
         [trackValues]
       );
 
-      console.log(`Poll OK: ${states.length} aircraft cached`);
+      console.log(`Poll OK: ${states.length} Aircraft cached`);
     } catch (e) {
       console.error("Poll FAILED:", e?.message || e);
     }

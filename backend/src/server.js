@@ -1,3 +1,23 @@
+// File: server.js
+// Project: 24Air Radar
+// Author: Muhammad Faiq Imran
+// Last Modified: 15/03/2026
+
+// Description:
+//  This file sets up the Express server for the 24Air Radar application. 
+//  It configures middleware for security (Helmet), CORS, and JSON parsing. 
+//  It defines routes for authentication, user management, airports, and aircraft data. 
+//  The server also serves static files from the public directory and includes a health check endpoint. 
+// 
+// Dependencies:
+//  - mysql2
+//  - dotenv
+//  - express
+//  - cors
+//  - helmet
+//  - Path
+//  - Other backend Files(Routes, middleware, jobs and Database)
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -5,11 +25,11 @@ import "dotenv/config";
 import { authRouter } from "./routes/auth.routes.js";
 import { pool } from "./db.js";
 import { userRouter } from "./routes/user.routes.js";
-import { airportsRouter } from "./routes/airports.routes.js";
-import { aircraftRouter } from "./routes/aircraft.routes.js";
+import { AirportsRouter } from "./routes/Airports.routes.js";
+import { AircraftRouter } from "./routes/Aircraft.routes.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import { startAircraftPoller } from "./jobs/aircraftPoller.js";
+import { startAircraftPoller } from "./jobs/AircraftPoller.js";
 
 startAircraftPoller();
 
@@ -62,24 +82,24 @@ app.listen(port, () => console.log(`Running on ${port}`));
 
 app.use("/api/user", userRouter);
 
-app.use("/api/airports", airportsRouter);
+app.use("/api/Airports", AirportsRouter);
 
-app.use("/api/aircraft", aircraftRouter);
+app.use("/api/Aircraft", AircraftRouter);
 
 // ======================================================
-// AIRCRAFT CLEANUP JOB
-// Deletes aircraft not updated in last 5 minutes
+// AirCRAFT CLEANUP JOB
+// Deletes Aircraft not updated in last 5 minutes
 // Runs every 15 minutes
 // ======================================================
 
 setInterval(async () => {
   try {
     const [result] = await pool.query(
-      `DELETE FROM aircraft_latest
+      `DELETE FROM Aircraft_latest
        WHERE updated_at < (NOW() - INTERVAL 5 MINUTE)`
     );
 
-    console.log(`Aircraft cleanup: removed ${result.affectedRows} old aircraft`);
+    console.log(`Aircraft cleanup: removed ${result.affectedRows} old Aircraft  at ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()} - ${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`);
   } catch (err) {
     console.error("Aircraft cleanup failed:", err.message);
   }
@@ -99,8 +119,13 @@ app.get("/net-test", async (req, res) => {
 
 // Past positions cleanup (older than 24h)
 setInterval(async () => {
-  await pool.query(`
-    DELETE FROM aircraft_positions
-    WHERE time < (NOW() - INTERVAL 12 HOUR)
-  `);
+  try {
+    await pool.query(`
+      DELETE FROM aircraft_positions
+      WHERE time < (NOW() - INTERVAL 12 HOUR)
+    `);
+    console.log(`Past positions cleanup completed at ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()} - ${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`);
+  } catch (err) {
+    console.error("Past positions cleanup failed:", err.message);
+  }
 }, 15 * 60 * 1000);

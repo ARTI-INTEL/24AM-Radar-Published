@@ -1,14 +1,27 @@
+// File: aircraft.routes.js
+// Project: 24Air Radar
+// Author: Muhammad Faiq Imran
+// Last Modified: 15/03/2026
+
+// Description:
+//   This file manages aircraft-related API routes for the 24Air Radar application. 
+//   It includes endpoints for retrieving aircraft states within a bounding box and searching for aircraft.
+// 
+// Dependencies:
+//  - express
+
+
 import express from "express";
 import { pool } from "../db.js";
 
-export const aircraftRouter = express.Router();
+export const AircraftRouter = express.Router();
 
 /**
- * GET /api/aircraft?minLat=&maxLat=&minLon=&maxLon=
- * Returns aircraft states in the bounding box.
- * Also upserts into aircraft_latest.
+ * GET /api/Aircraft?minLat=&maxLat=&minLon=&maxLon=
+ * Returns Aircraft states in the bounding box.
+ * Also upserts into Aircraft_latest.
  */
-aircraftRouter.get("/", async (req, res) => {
+AircraftRouter.get("/", async (req, res) => {
   try {
     const minLat = Number(req.query.minLat);
     const maxLat = Number(req.query.maxLat);
@@ -22,7 +35,7 @@ aircraftRouter.get("/", async (req, res) => {
     const [rows] = await pool.query(
       `
       SELECT *
-      FROM aircraft_latest
+      FROM Aircraft_latest
       WHERE latitude BETWEEN ? AND ?
         AND longitude BETWEEN ? AND ?
       LIMIT 3000
@@ -32,20 +45,20 @@ aircraftRouter.get("/", async (req, res) => {
 
     return res.json({ source: "cache", states: rows });
   } catch (e) {
-    console.error("AIRCRAFT CACHE ERROR:", e);
+    console.error("AirCRAFT CACHE ERROR:", e);
     return res.status(500).json({ message: "Server error", error: String(e.message || e) });
   }
 });
 
-// Past Positions for an  aircraft
-aircraftRouter.get("/:icao/track", async (req, res) => {
+// Past Positions for an  Aircraft
+AircraftRouter.get("/:icao/track", async (req, res) => {
   try {
     const icao = req.params.icao;
 
     const [rows] = await pool.query(
       `
       SELECT lat, lon
-      FROM aircraft_positions
+      FROM Aircraft_positions
       WHERE icao = ?
       ORDER BY time ASC
       `,
@@ -55,6 +68,6 @@ aircraftRouter.get("/:icao/track", async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to get aircraft track" });
+    res.status(500).json({ error: "Failed to get Aircraft track" });
   }
 });

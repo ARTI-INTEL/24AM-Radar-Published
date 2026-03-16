@@ -1,4 +1,15 @@
-// openskyToken.js
+// File: openskyToken.js
+// Project: 24Air Radar
+// Author: Muhammad Faiq Imran
+// Last Modified: 15/03/2026
+
+// Description:
+//  This file handles the OpenSky API token management for the application. 
+//  It provides a function to retrieve a valid access token from the OpenSky authentication endpoint. 
+//  The token is cached to avoid unnecessary requests, and is refreshed before expiration.
+// 
+// Dependencies:
+//  - openSkyAPI
 
 let cachedToken = null;
 let cachedExpMs = 0;

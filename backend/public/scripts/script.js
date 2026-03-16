@@ -1,3 +1,76 @@
+/* 
+File: script.js
+Project: 24Air Radar
+Author: Muhammad Faiq Imran
+Last Modified: 15/03/2026
+
+Description:
+  This file contains the JavaScript code for the 24Air Radar application, handling user interactions, 
+  authentication, and communication with the backend API. It includes functionality for showing/hiding passwords,
+  displaying toast notifications, managing user sessions, and connecting to the backend for login, registration,
+  and user settings updates.
+
+Dependencies:
+  - Node.js 
+  - Express.js 
+*/
+
+// ================== SHOW / HIDE PASSWORD ==================
+function setupPasswordToggles() {
+  const toggleButtons = document.querySelectorAll(".toggle-password");
+
+  toggleButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.getAttribute("data-target");
+      const input = document.getElementById(targetId);
+
+      if (!input) return;
+
+      if (input.type === "password") {
+        input.type = "text";
+        btn.textContent = "Hide";
+      } else {
+        input.type = "password";
+        btn.textContent = "Show";
+      }
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", setupPasswordToggles);
+
+// ================== TOAST POPUPS ==================
+function getToastContainer() {
+  let container = document.getElementById("toastContainer");
+
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toastContainer";
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+
+  return container;
+}
+
+function showToast(message, type = "info", duration = 2500) {
+  const container = getToastContainer();
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("toast-hide");
+
+    setTimeout(() => {
+      toast.remove();
+    }, 250);
+  }, duration);
+}
+
 // Protects pages that require authentication
 
 const protectedPages = ["map.html", "settings.html", "changePW.html", "changeUN.html"];
