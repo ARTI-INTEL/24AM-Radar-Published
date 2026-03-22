@@ -25,11 +25,11 @@ import "dotenv/config";
 import { authRouter } from "./routes/auth.routes.js";
 import { pool } from "./db.js";
 import { userRouter } from "./routes/user.routes.js";
-import { AirportsRouter } from "./routes/Airports.routes.js";
-import { AircraftRouter } from "./routes/Aircraft.routes.js";
+import { AirportsRouter } from "./routes/airports.routes.js";
+import { AircraftRouter } from "./routes/aircraft.routes.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import { startAircraftPoller } from "./jobs/AircraftPoller.js";
+import { startAircraftPoller } from "./jobs/aircraftPoller.js";
 
 startAircraftPoller();
 
